@@ -2,84 +2,81 @@
 $installDirectory = "C:\Program Files (x86)\QuickMoveTool"
 
 # Quick Move menus
-$quickMoveMenusMUIVerb = "Quick Move Menu"
+$quickMoveMenusMUIVerb = "Quick Move"
 
-$fileQuickMoveMenuBase = "HKLM:\SOFTWARE\Classes\*\shell\Quick Move"
-$directoryQuickMoveMenuBase = "HKLM:\SOFTWARE\Classes\Directory\shell\Quick Move"
+$fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
+$fileQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "*\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
-$directoryBackgroundQuickMoveMenuBase = "HKLM:\SOFTWARE\Classes\Directory\background\shell\Quick Move"
-$directoryBackgroundQuickMoveSubCommands = "thebestbadfriend.AddThisFolderToQuickMove;thebestbadfriend.RemoveThisFolderFromQuickMove"
+$fileQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove"
+$fileQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 
+$directoryQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\shell\Quick Move Menu"
+$directoryQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
-# Initial command store items
-$commandStoreBase = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell"
-$commandStoreAddThisFolderToQuickMoveMenu = "$commandStoreBase\thebestbadfriend.AddThisFolderToQuickMove"
-$commandStoreRemoveThisFolderFromQuickMoveMenu = "$commandStoreBase\thebestbadfriend.RemoveThisFolderFromQuickMove"
+$directoryQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove"
+$directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
+
+$directoryBackgroundQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\background\shell\Quick Move"
+$directoryBackgroundQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\background\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
+
+$directoryBackgroundQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove"
+$directoryBackgroundQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
+
+$addToQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove"
+$addToQuickMoveBaseProperties = @{Default = "Add This Folder To QuickMove"}
+$addToQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove\command"
+$addToQuickMoveCommandProperties = @{Default = "$installDirectory\\bat\\run-addto-quickmove.bat"}
+
+$removeFromQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove"
+$removeFromQuickMoveBaseProperties = @{Default = "Remove This Folder From QuickMove"}
+$removeFromQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove\command"
+$removeFromQuickMoveCommandProperties = @{Default = "$installDirectory\\bat\\run-removefrom-quickmove.bat"}
 #endregion
 
 #region main flow
 PutFilesWhereTheyGo
-SetUpDirectoryBackground
-SetUpFileQuickMove
-SetUpFolderQuickMove
-SetUpAddToQuickMoveCommand
-SetUpRemoveFromQuickMoveCommand
+
+# file quick move menu
+CreateRegistryItem -keyPath $fileQuickMoveMenu -properties $fileQuickMoveMenuProperties
+CreateRegistryItem -keyPath $fileQuickMoveMenuShellexBase
+CreateRegistryItem -keyPath $fileQuickMoveMenuShellexShell
+
+# directory quick move menu
+CreateRegistryItem -keyPath $directoryQuickMoveMenu -properties $directoryQuickMoveMenuProperties
+CreateRegistryItem -keyPath $directoryQuickMoveMenuShellexBase
+CreateRegistryItem -keyPath $directoryQuickMoveMenuShellexShell
+
+# directory background quick move menu
+CreateRegistryItem -keyPath $directoryBackgroundQuickMoveMenu -properties $directoryBackgroundQuickMoveMenuProperties
+CreateRegistryItem -keyPath $directoryBackgroundQuickMoveMenuShellexBase
+CreateRegistryItem -keyPath $directoryBackgroundQuickMoveMenuShellexShell
+
+# directory background quick move menu options
+CreateRegistryItem -keyPath $addToQuickMoveBaseKey -properties $addToQuickMoveBaseProperties
+CreateRegistryItem -keyPath $addToQuickMoveCommandKey -properties $addToQuickMoveCommandProperties
+CreateRegistryItem -keyPath $removeFromQuickMoveBaseKey -properties $removeFromQuickMoveBaseProperties
+CreateRegistryItem -keyPath $removeFromQuickMoveCommandKey -properties $removeFromQuickMoveCommandProperties
+
 #endregion
 
 #region menu setup function definitions
-function SetUpDirectoryBackground {
-  if(-not (Test-Path -LiteralPath $directoryBackgroundQuickMoveMenuBase)){
-    New-Item -Path $directoryBackgroundQuickMoveMenuBase
+function CreateRegistryItem ([string] $keyPath, [hashtable] $properties = $null) {
+  if(Test-Path -LiteralPath $keyPath){
+    Remove-Item -LiteralPath $keyPath
   }
   
-  Set-ItemProperty -LiteralPath $directoryBackgroundQuickMoveMenuBase -Name "MUIVerb" -Value $quickMoveMenusMUIVerb
-  Set-ItemProperty -LiteralPath $directoryBackgroundQuickMoveMenuBase -Name "SubCommands" -Value $directoryBackgroundQuickMoveSubCommands
-} # Done, not tested
-
-function SetUpFileQuickMove {
-  if(-not (Test-Path -LiteralPath $fileQuickMoveMenuBase)){
-    New-Item -Path $fileQuickMoveMenuBase
-  }
+  New-Item -Path $keyPath
   
-  Set-ItemProperty -LiteralPath $fileQuickMoveMenuBase -Name "MUIVerb" -Value $quickMoveMenusMUIVerb
-  Set-ItemProperty -LiteralPath $fileQuickMoveMenuBase -Name "SubCommands" -Value ""
-}
-
-function SetUpFolderQuickMove {
-  if(-not (Test-Path -LiteralPath $directoryQuickMoveMenuBase)){
-    New-Item -Path $directoryQuickMoveMenuBase
+  if ( $properties -ne $null) {
+    foreach ($key in $properties.Keys){
+      if ($key -eq "Default") {
+        Set-ItemProperty -LiteralPath $keyPath -Name "(Default)"  -Value $($properties.$key)
+      }
+      else {
+        Set-ItemProperty -LiteralPath $keyPath -Name $key  -Value $($properties.$key)
+      }
+    }
   }
-
-  Set-ItemProperty -LiteralPath $directoryQuickMoveMenuBase -Name "MUIVerb" -Value $quickMoveMenusMUIVerb
-  Set-ItemProperty -LiteralPath $directoryQuickMoveMenuBase -Name "SubCommands" -Value ""
-} # Done, not tested
-#endregion
-
-#region command store setup function definitions
-function SetUpAddToQuickMoveCommand {
-  if(-not (Test-Path -LiteralPath $commandStoreAddThisFolderToQuickMoveMenu)){
-    New-Item -Path $commandStoreAddThisFolderToQuickMoveMenu
-  }
-
-  if(-not (Test-Path -LiteralPath "$commandStoreAddThisFolderToQuickMoveMenu\command")){
-    New-Item -Path "$commandStoreAddThisFolderToQuickMoveMenu\command"
-  }
-  
-  Set-ItemProperty -LiteralPath $commandStoreAddThisFolderToQuickMoveMenu -Name "(Default)" -Value "Add This Folder To Quick-Move"
-  Set-ItemProperty -LiteralPath "$commandStoreAddThisFolderToQuickMoveMenu\command" -Name "(Default)" -Value "$installDirectory\run-addto-quickmove.bat %V"
-}
-
-function SetUpRemoveFromQuickMoveCommand {
-  if(-not (Test-Path -LiteralPath $commandStoreRemoveThisFolderFromQuickMoveMenu)){
-    New-Item -Path $commandStoreRemoveThisFolderFromQuickMoveMenu
-  }
-
-  if(-not (Test-Path -LiteralPath "$commandStoreRemoveThisFolderFromQuickMoveMenu\command")){
-    New-Item -Path "$commandStoreRemoveThisFolderFromQuickMoveMenu\command"
-  }
-  
-  Set-ItemProperty -LiteralPath $commandStoreRemoveThisFolderFromQuickMoveMenu -Name "(Default)" -Value "Remove This Folder From Quick-Move"
-  Set-ItemProperty -LiteralPath "$commandStoreRemoveThisFolderFromQuickMoveMenu\command" -Name "(Default)" -Value "$installDirectory\run-removefrom-quickmove.bat %V"
 }
 
 #endregion
