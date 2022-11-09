@@ -51,6 +51,3 @@ if(Test-Path -LiteralPath "$fileQuickMoveMenuShellexShell\Move To $folderName") 
 else {
   CreateFileAndDirectoryMenuRegistryItems
 }
-
-# TODO
-# make this put items in a fly-out menu rather than putting them directly in the right-click menu

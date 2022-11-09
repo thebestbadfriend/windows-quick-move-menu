@@ -34,7 +34,6 @@ $removeFromQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\sh
 $removeFromQuickMoveCommandProperties = @{Default = "powershell.exe & '$($installDirectory.Replace("\","\\"))\\RemoveFrom-QuickMove.ps1' %V"}
 #endregion
 
-
 #region menu setup function definitions
 function CreateRegistryItem ([string] $keyPath, [hashtable] $properties = $null) {
   if(Test-Path -LiteralPath $keyPath){

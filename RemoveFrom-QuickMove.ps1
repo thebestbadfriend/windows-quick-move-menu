@@ -47,4 +47,3 @@ else {
 
 # TODO
 # update this to remove the fly out menu items rather than the direct right click ones
-#   (after the change is made so that they are added that way to begin with)
