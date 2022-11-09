@@ -1,5 +1,6 @@
 #region constants
 $installDirectory = "C:\Program Files (x86)\QuickMoveTool"
+$setupScriptLocation = Split-Path $MyInvocation.MyCommand.Source
 
 # Quick Move menus
 $quickMoveMenusMUIVerb = "Quick Move"
@@ -16,7 +17,7 @@ $directoryQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\shell
 $directoryQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove"
 $directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 
-$directoryBackgroundQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\background\shell\Quick Move"
+$directoryBackgroundQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\background\shell\Quick Move Menu"
 $directoryBackgroundQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\background\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
 $directoryBackgroundQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove"
@@ -25,12 +26,51 @@ $directoryBackgroundQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Director
 $addToQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove"
 $addToQuickMoveBaseProperties = @{Default = "Add This Folder To QuickMove"}
 $addToQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove\command"
-$addToQuickMoveCommandProperties = @{Default = "$installDirectory\\bat\\run-addto-quickmove.bat"}
+$addToQuickMoveCommandProperties = @{Default = "$($installDirectory.Replace("\","\\"))\\bat\\run-addto-quickmove.bat"}
 
 $removeFromQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove"
 $removeFromQuickMoveBaseProperties = @{Default = "Remove This Folder From QuickMove"}
 $removeFromQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove\command"
-$removeFromQuickMoveCommandProperties = @{Default = "$installDirectory\\bat\\run-removefrom-quickmove.bat"}
+$removeFromQuickMoveCommandProperties = @{Default = "$($installDirectory.Replace("\","\\"))\\bat\\run-removefrom-quickmove.bat"}
+#endregion
+
+
+#region menu setup function definitions
+function CreateRegistryItem ([string] $keyPath, [hashtable] $properties = $null) {
+  if(Test-Path -LiteralPath $keyPath){
+    Remove-Item -LiteralPath $keyPath -Recurse
+  }
+  
+  New-Item -Path $keyPath
+  
+  if ( $properties -ne $null) {
+    foreach ($key in $properties.Keys){
+      if ($key -eq "Default") {
+        Set-ItemProperty -LiteralPath $keyPath -Name "(Default)"  -Value $($properties.$key)
+      }
+      else {
+        Set-ItemProperty -LiteralPath $keyPath -Name $key  -Value $($properties.$key)
+      }
+    }
+  }
+}
+
+#endregion
+
+#region other function definitions
+function PutFilesWhereTheyGo {
+  "$setupScriptLocation"
+
+  Set-Location -LiteralPath $setupScriptLocation
+
+  if(-not (Test-Path -LiteralPath $installDirectory)) {
+    New-Item -ItemType Directory $installDirectory
+  }
+  
+  foreach($item in Get-ChildItem -Exclude *Setup*,*test*) {
+    Copy-Item $item $installDirectory -Recurse -Force
+  }
+}
 #endregion
 
 #region main flow
@@ -57,38 +97,4 @@ CreateRegistryItem -keyPath $addToQuickMoveCommandKey -properties $addToQuickMov
 CreateRegistryItem -keyPath $removeFromQuickMoveBaseKey -properties $removeFromQuickMoveBaseProperties
 CreateRegistryItem -keyPath $removeFromQuickMoveCommandKey -properties $removeFromQuickMoveCommandProperties
 
-#endregion
-
-#region menu setup function definitions
-function CreateRegistryItem ([string] $keyPath, [hashtable] $properties = $null) {
-  if(Test-Path -LiteralPath $keyPath){
-    Remove-Item -LiteralPath $keyPath
-  }
-  
-  New-Item -Path $keyPath
-  
-  if ( $properties -ne $null) {
-    foreach ($key in $properties.Keys){
-      if ($key -eq "Default") {
-        Set-ItemProperty -LiteralPath $keyPath -Name "(Default)"  -Value $($properties.$key)
-      }
-      else {
-        Set-ItemProperty -LiteralPath $keyPath -Name $key  -Value $($properties.$key)
-      }
-    }
-  }
-}
-
-#endregion
-
-#region other function definitions
-function PutFilesWhereTheyGo {
-  if(-not (Test-Path $installDirectory)) {
-    New-Item -ItemType Directory $installDirectory
-  }
-  
-  foreach($item in Get-ChildItem -Exclude *Setup*,*test*) {
-    Copy-Item $item $installDirectory -Recurse -Force
-  }
-}
 #endregion

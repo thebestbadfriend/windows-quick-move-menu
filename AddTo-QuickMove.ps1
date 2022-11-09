@@ -2,19 +2,23 @@
   [Parameter(Mandatory)]
   [string]$folderPath
 )
+#region regkeys
+$fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
+$fileQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "*\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
-$fileQuickMoveMenuBase = "HKLM:\SOFTWARE\Classes\*\shell\Quick Move"
-$directoryQuickMoveMenuBase = "HKLM:\SOFTWARE\Classes\Directory\shell\Quick Move"
+$fileQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove"
+$fileQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 
+$directoryQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\shell\Quick Move Menu"
+$directoryQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
-$fileMenuBase = 'HKLM:\SOFTWARE\Classes\*\shell\Quick Move'
-$directoryMenuBase = 'HKLM:\SOFTWARE\Classes\Directory\shell\Quick Move'
+$directoryQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove"
+$directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
+#endregion
+
 $folderName = Split-Path -Path $folderPath -Leaf
 
-$commandStoreBase = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell"
-$commandStoreQuickMoveEntry = "$commandStoreBase\thebestbadfriend.QuickMoveTo_changetherestofthistomakeituniqueperfolder" # need to generate this uniquely to each folder, are spaces allowed in command store entries?
-
-$quickMoveScript = "C:\\Toolbox\\Coding\\PowerShell\\Scripts\\QuickMove\\QuickMove-FileOrFolder.ps1"
+$quickMoveScript = "$($(Split-Path $MyInvocation.MyCommand.Source).Replace("\","\\"))QuickMove-FileOrFolder.ps1"
 
 
 if(Test-Path -LiteralPath "$fileMenuBase\Move To $folderName") {
