@@ -3,8 +3,6 @@
   [string]$folderPath
 )
 
-"addto-quickmove.ps1 tried to run" > C:\Toolbox\quickmovelog.txt
-
 #region regkeys
 $fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
 
@@ -40,28 +38,27 @@ function CreateRegistryItem ([string] $keyPath, [hashtable] $properties = $null)
   }
 }
 
+function CreateFileAndDirectoryMenuRegistryItems {
+    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
+    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
+
+    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
+    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
+}
 
 if(Test-Path -LiteralPath "$fileQuickMoveMenuShellexShell\Move To $folderName") {
   Add-Type -AssemblyName PresentationFramework
   $regKeyExistsResponse = [System.Windows.MessageBox]::Show("A folder named $folderName already exists in the Quick Move menu. Do you want to replace it with this folder?", "Folder Name Already In Menu", "YesNo", "Exclamation")
 
   if($regKeyExistsResponse -eq "Yes"){
-    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
-    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
-
-    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
-    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
+    CreateFileAndDirectoryMenuRegistryItems
   }
   elseif($regKeyExistsResponse -eq "No") {
     [System.Windows.MessageBox]::Show("No changes made.", "Operation Cancelled", "OK", "Information")
   }
 }
 else {
-    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
-    CreateRegistryItem -keyPath "$fileQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
-
-    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName" -properties @{"Default" = "Move To $folderName"}
-    CreateRegistryItem -keyPath "$directoryQuickMoveMenuShellexShell\Move To $folderName\command" -properties @{"Default" = "powershell.exe & '$quickMoveScript' '%1' $folderPath"}
+  CreateFileAndDirectoryMenuRegistryItems
 }
 
 # TODO
