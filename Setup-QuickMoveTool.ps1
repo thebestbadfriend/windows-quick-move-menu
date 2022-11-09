@@ -26,12 +26,12 @@ $directoryBackgroundQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Director
 $addToQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove"
 $addToQuickMoveBaseProperties = @{Default = "Add This Folder To QuickMove"}
 $addToQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\AddToQuickMove\command"
-$addToQuickMoveCommandProperties = @{Default = "$($installDirectory.Replace("\","\\"))\\bat\\run-addto-quickmove.bat"}
+$addToQuickMoveCommandProperties = @{Default = "powershell.exe & '$($installDirectory.Replace("\","\\"))\\AddTo-QuickMove.ps1' %V"}
 
 $removeFromQuickMoveBaseKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove"
 $removeFromQuickMoveBaseProperties = @{Default = "Remove This Folder From QuickMove"}
 $removeFromQuickMoveCommandKey = "HKCU:\SOFTWARE\Classes\Directory\background\shellex\ContextMenuHandlers\Menu_QuickMove\shell\RemoveFromQuickMove\command"
-$removeFromQuickMoveCommandProperties = @{Default = "$($installDirectory.Replace("\","\\"))\\bat\\run-removefrom-quickmove.bat"}
+$removeFromQuickMoveCommandProperties = @{Default = "powershell.exe & '$($installDirectory.Replace("\","\\"))\\RemoveFrom-QuickMove.ps1' %V"}
 #endregion
 
 
