@@ -3,21 +3,20 @@
   [string]$folderPath
 )
 
-$fileMenuRegPath = 'HKLM:\Software\Classes\*\shell\Quick-Move Menu'
-$directoryMenuRegPath = 'HKLM:\Software\Classes\Directory\shell\Quick Move Menu'
+$fileQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
+$directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
+
 $folderName = Split-Path -Path $folderPath -Leaf
 $regKey = "Move To $folderName"
 
-$commandStoreBase = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\CommandStore\shell"
-
 Add-Type -AssemblyName PresentationFramework
 
-if(Test-Path -LiteralPath "$fileMenuRegPath\$regKey") {
-  $commandSplit = (((Get-ItemProperty -LiteralPath "HKLM:\Software\Classes\*\shell\Move To Toolbox\command").'(default)') -split '''%1''').trim()
+if(Test-Path -LiteralPath "$fileQuickMoveMenuShellexShell\$regKey") {
+  $commandSplit = (((Get-ItemProperty -LiteralPath "$directoryQuickMoveMenuShellexShell\$regKey\command").'(Default)') -split '''%1''').trim()
   $commandFolderPath = ($commandSplit[-1])#.replace('\','\\')
   if($commandFolderPath -eq "$folderPath") {
-    Remove-Item -LiteralPath "$fileMenuRegPath\$regKey" -Recurse
-    Remove-Item -LiteralPath "$directoryMenuRegPath\$regKey" -Recurse
+    Remove-Item -LiteralPath "$fileQuickMoveMenuShellexShell\$regKey" -Recurse
+    Remove-Item -LiteralPath "$directoryQuickMoveMenuShellexShell\$regKey" -Recurse
   }
   else {
     $otherFolderSameNameMessage = "This folder:
@@ -33,8 +32,8 @@ does exist. Would you like to remove that folder from the quick move menu?
     $otherFolderSameNameResponse = [System.Windows.MessageBox]::Show($otherFolderSameNameMessage, "Different Folder", "YesNo", "Exclamation")
 
     if($otherFolderSameNameResponse -eq "Yes"){
-      Remove-Item -LiteralPath "$fileMenuRegPath\$regKey" -Recurse
-      Remove-Item -LiteralPath "$directoryMenuRegPath\$regKey" -Recurse
+      Remove-Item -LiteralPath "$fileQuickMoveMenuShellexShell\$regKey" -Recurse
+      Remove-Item -LiteralPath "$directoryQuickMoveMenuShellexShell\$regKey" -Recurse
     }
     elseif($otherFolderSameNameResponse -eq "No") {
       [System.Windows.MessageBox]::Show("No changes made.", "Operation Cancelled", "OK", "Information")
