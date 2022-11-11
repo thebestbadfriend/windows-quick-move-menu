@@ -3,6 +3,9 @@
   [string]$folderPath
 )
 
+$fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
+$directoryQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\shell\Quick Move Menu"
+
 $fileQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 $directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 
@@ -44,5 +47,10 @@ else {
   [System.Windows.MessageBox]::Show("No folder with this name exists in the quick move menu.", "Operation Cancelled", "OK", "Information")
 }
 
-# TODO
-# update this to remove the fly out menu items rather than the direct right click ones
+if((Get-ChildItem -LiteralPath $fileQuickMoveMenuShellexShell).length -eq 0){
+  Remove-Item -LiteralPath $fileQuickMoveMenu -Recurse
+}
+
+if((Get-ChildItem -LiteralPath $directoryQuickMoveMenuShellexShell).length -eq 0){
+  Remove-Item -LiteralPath $directoryQuickMoveMenu -Recurse
+}

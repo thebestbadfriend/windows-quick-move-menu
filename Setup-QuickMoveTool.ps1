@@ -5,14 +5,14 @@ $setupScriptLocation = Split-Path $MyInvocation.MyCommand.Source
 # Quick Move menus
 $quickMoveMenusMUIVerb = "Quick Move"
 
-$fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
-$fileQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "*\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
+# $fileQuickMoveMenu = "HKCU:\SOFTWARE\Classes\*\shell\Quick Move Menu"
+# $fileQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "*\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
 $fileQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove"
 $fileQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\*\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
 
-$directoryQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\shell\Quick Move Menu"
-$directoryQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
+# $directoryQuickMoveMenu = "HKCU:\SOFTWARE\Classes\Directory\shell\Quick Move Menu"
+# $directoryQuickMoveMenuProperties = @{ExtendedSubCommandsKey = "Directory\\shellex\\ContextMenuHandlers\\Menu_QuickMove"; MUIVerb = $quickMoveMenusMUIVerb}
 
 $directoryQuickMoveMenuShellexBase = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove"
 $directoryQuickMoveMenuShellexShell = "HKCU:\SOFTWARE\Classes\Directory\shellex\ContextMenuHandlers\Menu_QuickMove\shell"
@@ -76,12 +76,12 @@ function PutFilesWhereTheyGo {
 PutFilesWhereTheyGo
 
 # file quick move menu
-CreateRegistryItem -keyPath $fileQuickMoveMenu -properties $fileQuickMoveMenuProperties
+# CreateRegistryItem -keyPath $fileQuickMoveMenu -properties $fileQuickMoveMenuProperties
 CreateRegistryItem -keyPath $fileQuickMoveMenuShellexBase
 CreateRegistryItem -keyPath $fileQuickMoveMenuShellexShell
 
 # directory quick move menu
-CreateRegistryItem -keyPath $directoryQuickMoveMenu -properties $directoryQuickMoveMenuProperties
+# CreateRegistryItem -keyPath $directoryQuickMoveMenu -properties $directoryQuickMoveMenuProperties
 CreateRegistryItem -keyPath $directoryQuickMoveMenuShellexBase
 CreateRegistryItem -keyPath $directoryQuickMoveMenuShellexShell
 
